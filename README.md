@@ -1,4 +1,4 @@
-# agent-swarm
+# 🤖 agent-swarm
 
 [![npm version](https://img.shields.io/npm/v/@hosnainrafi/agent-swarm)](https://www.npmjs.com/package/@hosnainrafi/agent-swarm)
 [![npm downloads](https://img.shields.io/npm/dm/@hosnainrafi/agent-swarm)](https://www.npmjs.com/package/@hosnainrafi/agent-swarm)
@@ -6,13 +6,107 @@
 [![Node >= 18](https://img.shields.io/badge/node-%3E%3D18-green.svg)](https://nodejs.org)
 [![GitHub stars](https://img.shields.io/github/stars/HosnainRafi/agent-swarm?style=social)](https://github.com/HosnainRafi/agent-swarm)
 
-Spawn a team of AI subagents — working simultaneously — inside the CLI coding assistant you already pay for.
+> **One goal. Six specialist AI agents. Zero extra API keys.**
+> Turn any CLI coding assistant into a parallel swarm — a planner, designer, frontend, backend, tester, and reviewer all working *at the same time*, on the credit you already pay for.
 
-Claude Code, Codex, Gemini CLI, Qwen Code, **ZCode (Z.ai/GLM)**, OpenCode, or Copilot CLI. **No external APIs, no extra keys, no extra credits account.** Every specialist runs as its own session of your existing assistant, under your existing subscription. agent-swarm is only the coordinator.
+---
 
-## Why this exists
+## What is agent-swarm?
 
-Claude Code has a great feature: you ask it to spawn subagents (a planner, a designer, a developer, a tester...), and they work in parallel inside your session. But that pattern is locked to Claude Code. agent-swarm brings the **same pattern to every CLI coding assistant** — including Claude Code — so you can use whichever one your credits are on.
+agent-swarm is a universal orchestrator that spawns a **team of AI subagents** inside the CLI coding assistant you already use — Claude Code, Codex, Gemini CLI, Qwen Code, **ZCode (Z.ai/GLM)**, OpenCode, or Copilot CLI.
+
+Claude Code has a great feature: you ask it to spawn subagents that work in parallel. But that pattern is locked to Claude Code. agent-swarm brings the **same pattern to every CLI coding assistant** — **no external APIs, no extra keys, no extra credit account.**
+
+```mermaid
+flowchart TB
+    G["🎯 Your goal"] --> O["🧠 agent-swarm<br/>(orchestrator)"]
+    O --> P["📋 Planner"]
+    O --> D["🎨 Designer"]
+    O --> F["🖥️ Frontend Dev"]
+    O --> B["⚙️ Backend Dev"]
+    O --> T["🧪 Tester"]
+    O --> R["🔍 Reviewer"]
+    P --> S["📁 .swarm/ outputs"]
+    D --> S
+    F --> S
+    B --> S
+    T --> S
+    R --> S
+    S --> V["✅ Status board"]
+```
+
+## ✨ Features
+
+- ⚡ **Truly parallel** — all 6 specialists run simultaneously in one wave (no blind waiting).
+- 🔑 **No new keys** — reuses the login/subscription you already have. agent-swarm never calls an AI API.
+- 🌍 **Universal** — one pattern across Claude Code, Codex, Gemini, Qwen, ZCode, OpenCode, Copilot.
+- 💸 **Cost-aware** — `fast` and `economy` modes to control your token budget.
+- 📦 **Zero dependencies** — plain Node.js, no build step, no external services.
+- 🪟 **Cross-platform** — macOS, Linux, and Windows.
+
+## Supported assistants
+
+| Assistant | Parallel swarm | Native in-session subagents |
+|---|---|---|
+| Claude Code | ✅ | ✅ (agent teams) |
+| Codex CLI | ✅ | ✅ (in-session) |
+| Gemini CLI | ✅ | ✅ (`/agent`) |
+| Qwen Code | ✅ | ✅ (`/agent`) |
+| ZCode (Z.ai/GLM) | ✅ | ✅ (in-session) |
+| OpenCode | ✅ | ✅ (`/delegate`) |
+| Copilot CLI | ✅ | — |
+| ChatGPT (web) | ❌ no CLI | — |
+
+> 💡 **ChatGPT (web) has no CLI**, so agent-swarm can't drive it. For OpenAI, use **Codex CLI** — same OpenAI login/credits, no extra key.
+
+## Demo
+
+```text
+$ npx @hosnainrafi/agent-swarm run "build a todo web app with dark mode"
+
+━━━ Swarm estimate ━━━
+  Mode:      fast (1 wave, max 8 concurrent)
+  Agents:    6 specialists — Planner, Designer, Frontend, Backend, Tester, Reviewer
+  Consumed from: your existing Claude Code / Codex subscription — no new keys.
+
+▶ Planner (Claude Code)…
+▶ Designer (Claude Code)…
+▶ Frontend (Codex)…
+▶ Backend (Codex)…
+▶ Tester (Claude Code)…
+▶ Reviewer (Codex)…
+
+━━━ Status board ━━━
+  ✔ planner   — done (32s)
+  ✔ designer  — done (28s)
+  ✔ frontend  — done (41s)
+  ✔ backend   — done (36s)
+  ✔ tester    — done (22s)
+  ✔ reviewer  — done (19s)
+
+✔ Swarm complete (6/6 agents succeeded). Outputs in .swarm/.
+```
+
+## How it works
+
+```mermaid
+sequenceDiagram
+    participant U as You
+    participant O as agent-swarm
+    participant A as 6 specialists
+    U->>O: run "build a todo app"
+    O->>A: spawn all 6 in parallel (one CLI session each)
+    par parallel
+        A-->>O: plan.md
+    and
+        A-->>O: design.md
+    and
+        A-->>O: code + tests
+    end
+    O-->>U: status board + outputs
+```
+
+Every specialist runs as its own session of your existing assistant. Specialists share context through the `docs/` folder and the `.swarm/` status directory, so they effectively work **simultaneously on your project**.
 
 ## Install
 
@@ -39,25 +133,33 @@ npx @hosnainrafi/agent-swarm run "build a todo web app with dark mode and local 
 #    ✔ planner ✔ designer ✔ frontend ✔ backend ✔ tester ✔ reviewer
 ```
 
+## Teams
+
+**standard** — plan → design → build in parallel → test → review. Specialists: Planner, Designer, Frontend Dev, Backend Dev, Tester, Reviewer.
+
+**research** — three agents investigate the same question from different angles at the same time: a supporter, a devil's advocate, and a synthesizer who reads both reports and writes the final answer.
+
+**bugfix** — two debuggers test competing hypotheses in parallel, then a judge compares the fixes, tests each against the failing case, and applies the winner.
+
 ## Commands
 
 | Command | What it does |
 |---|---|
 | `agent-swarm run "<goal>"` | Fan out specialists in parallel (one CLI session each) |
-| `agent-swarm native "<goal>"` | Print the exact commands to spawn **true in-session subagents** (Claude Code agent teams, Gemini/Qwen `/agent`) |
+| `agent-swarm native "<goal>"` | Print the exact commands to spawn **true in-session subagents** |
 | `agent-swarm detect` | Show which CLI agents are installed on your machine |
 | `agent-swarm teams` | List available team templates |
 
-### Modes
+## Modes
 
 agent-swarm ships with two cost modes so you control the token budget:
 
 | Mode | Behavior | Est. token cost |
 |---|---|---|
 | `--mode fast` (default) | All specialists run simultaneously in one wave | ~N sessions (N = team size) |
-| `--mode economy` | Agents grouped in waves of max 3; later waves reuse earlier docs as shared context — nothing re-generated | ~3 sessions always |
+| `--mode economy` | Agents grouped in waves of max 3; later waves reuse earlier docs as shared context | ~3 sessions always |
 
-```
+```bash
 npx @hosnainrafi/agent-swarm run "build a todo app" --mode economy
 # → Swarm estimate: 2 waves, ~3 sessions of tokens
 ```
@@ -71,51 +173,40 @@ npx @hosnainrafi/agent-swarm run "build a todo app" --mode economy
 | `--concurrent <n>` | 8 | Max parallel sessions |
 | `--native` | off | With `run`: also print native in-session subagent commands |
 
-## Teams
-
-**standard** — plan → design → build in parallel → test → review. Specialists: Planner, Designer, Frontend Dev, Backend Dev, Tester, Reviewer.
-
-**research** — three agents investigate the same question from different angles at the same time: a supporter, a devil's advocate, and a synthesizer who reads both reports and writes the final answer.
-
-**bugfix** — two debuggers test competing hypotheses in parallel, then a judge compares the fixes, tests each against the failing case, and applies the winner.
-
 ## How the "no extra keys" promise works
 
 | Question | Answer |
 |---|---|
-| Which AI runs the agents? | The same CLI assistant you already use (Claude Code, Codex, Gemini CLI, Qwen Code...) |
+| Which AI runs the agents? | The same CLI assistant you already use (Claude Code, Codex, Gemini CLI, Qwen Code…) |
 | Whose credits are consumed? | **Yours** — the session uses the login/subscription you already have |
 | Does agent-swarm call any AI API? | No. It launches CLI sessions and coordinates them |
 | Do I need a new account or token? | No. If `claude` works today, your swarm works today |
-| What about ChatGPT (web)? | ChatGPT has no CLI, so agent-swarm can't drive it. For OpenAI, use **Codex CLI** — same OpenAI login/credits, no extra key |
-| Does it work on Windows? | Yes — detection uses `where` and spawn output is merged (`2>&1`), so the same commands run under cmd.exe and POSIX shells |
+| What about ChatGPT (web)? | No CLI, so agent-swarm can't drive it. Use **Codex CLI** — same OpenAI login |
+| Does it work on Windows? | Yes — detection uses `where` and output is merged (`2>&1`) for cmd.exe + POSIX |
 
-In short: the key is like the water connection to your house. agent-swarm doesn't add a new pipe company — it just adds a smart pump that uses your existing water. Each agent session consumes your normal per-session quota, so one swarm run is roughly N sessions worth (N = team size).
+In short: the key is like the water connection to your house. agent-swarm doesn't add a new pipe company — it just adds a smart pump that uses your existing water.
 
 ## Native in-session subagents (the real deal)
 
 `agent-swarm native "<goal>"` prints the commands to spawn genuine in-session subagents — the same thing Claude Code does internally:
 
-**Claude Code** (v2.1.178+, interactive session):
+**Claude Code** (interactive session):
 
 ```bash
 export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1   # enable agent teams
 claude
-# then inside Claude Code, just ask:
-# "spawn a team: one on UX, one on architecture, one playing devil's advocate"
-# Claude creates teammates that share a task list and message each other directly.
+# then inside Claude Code, ask:
+# "spawn a team: planner, designer, frontend, backend, tester, reviewer"
 ```
 
-**Gemini CLI:**
+**Gemini CLI / Qwen Code:**
 
 ```json
-// ~/.gemini/settings.json
+// ~/.gemini/settings.json  (or ~/.qwen/settings.json)
 { "experimental": { "enableAgents": true } }
 ```
 
-Then inside a Gemini session: `/agent planner -p "<prompt>"`.
-
-**Qwen Code** — same as Gemini, in `~/.qwen/settings.json`, using `/agent <name> -p "<prompt>"`.
+Then inside a session: `/agent planner -p "<prompt>"`.
 
 agent-swarm's parallel mode works even where native subagents don't exist (Codex, Copilot CLI, GLM-based CLIs), and works side-by-side with the native mode — run `--native` to get both.
 
@@ -125,17 +216,27 @@ agent-swarm's parallel mode works even where native subagents don't exist (Codex
 # Only use Claude Code + Codex (spread work between your two accounts):
 agent-swarm run "<goal>" --runtime claude,codex
 
-# Research question from 3 angles simultaneously:
+# Research a question from 3 angles simultaneously:
 agent-swarm run "is WebGPU production-ready in 2026?" --team research
 
 # Bug squad with competing hypotheses:
 agent-swarm run "app crashes when uploading files larger than 5MB" --team bugfix
 ```
 
+## FAQ
+
+**Does it use my existing subscription?** Yes — every specialist runs as a session of the CLI you already logged into. One swarm run ≈ N sessions of your normal quota.
+
+**Is it really parallel?** In `--mode fast`, yes — all specialists launch at once in one wave. `--mode economy` groups them to save tokens.
+
+**What if my CLI isn't supported?** Open an issue — adding a runtime is a ~10-line adapter. ZCode, Cursor, Kimi, and others are on the roadmap.
+
+**Can I use it in a CI/CD pipeline?** Yes, run `agent-swarm run "<goal>" --runtime codex` non-interactively.
+
 ## Support & contributing
 
-⭐ Star the repo if it saves you time. Pull requests welcome — open an issue to request a new runtime (ZCode, Cursor, Kimi, or any other CLI coding assistant).
+⭐ Star the repo if it saves you time. Pull requests welcome — open an issue to request a new runtime or report a bug.
 
 ## License
 
-MIT
+MIT © [Hosnain Rafi](https://github.com/HosnainRafi)
