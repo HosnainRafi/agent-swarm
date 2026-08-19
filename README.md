@@ -1,8 +1,14 @@
 # agent-swarm
 
+[![npm version](https://img.shields.io/npm/v/@hosnainrafi/agent-swarm)](https://www.npmjs.com/package/@hosnainrafi/agent-swarm)
+[![npm downloads](https://img.shields.io/npm/dm/@hosnainrafi/agent-swarm)](https://www.npmjs.com/package/@hosnainrafi/agent-swarm)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Node >= 18](https://img.shields.io/badge/node-%3E%3D18-green.svg)](https://nodejs.org)
+[![GitHub stars](https://img.shields.io/github/stars/HosnainRafi/agent-swarm?style=social)](https://github.com/HosnainRafi/agent-swarm)
+
 Spawn a team of AI subagents — working simultaneously — inside the CLI coding assistant you already pay for.
 
-Claude Code, Codex, Gemini CLI, Qwen Code, **ZCode (Z.ai/GLM)**, OpenCode, or Copilot CLI. **No external APIs, no extra keys, no extra credits account.** Every specialist runs as its own session of your existing assistant, under your existing subscription. agent-swarm is only the coordinator. Every specialist runs as its own session of your existing assistant, under your existing subscription. agent-swarm is only the coordinator.
+Claude Code, Codex, Gemini CLI, Qwen Code, **ZCode (Z.ai/GLM)**, OpenCode, or Copilot CLI. **No external APIs, no extra keys, no extra credits account.** Every specialist runs as its own session of your existing assistant, under your existing subscription. agent-swarm is only the coordinator.
 
 ## Why this exists
 
@@ -125,6 +131,10 @@ agent-swarm run "is WebGPU production-ready in 2026?" --team research
 # Bug squad with competing hypotheses:
 agent-swarm run "app crashes when uploading files larger than 5MB" --team bugfix
 ```
+
+## Support & contributing
+
+⭐ Star the repo if it saves you time. Pull requests welcome — open an issue to request a new runtime (ZCode, Cursor, Kimi, or any other CLI coding assistant).
 
 ## License
 

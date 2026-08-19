@@ -30,6 +30,15 @@
     "ai-coding"
   ],
   "license": "MIT",
+  "author": "Hosnain Rafi <rhosnain@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HosnainRafi/agent-swarm.git"
+  },
+  "homepage": "https://github.com/HosnainRafi/agent-swarm#readme",
+  "bugs": {
+    "url": "https://github.com/HosnainRafi/agent-swarm/issues"
+  },
   "engines": {
     "node": ">=18"
   }
