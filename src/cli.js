@@ -8,6 +8,7 @@ export function parseArgs(argv) {
     if (a === "--runtime") flags.runtimes = (flags.runtimes || []).concat(argv[++i].split(","));
     else if (a === "--team") flags.team = argv[++i];
     else if (a === "--concurrent") flags.maxConcurrent = parseInt(argv[++i], 10);
+    else if (a === "--mode") flags.mode = argv[++i];
     else if (a === "--native") flags.native = true;
     else if (a === "--help" || a === "-h") flags.help = true;
     else rest.push(a);
@@ -30,7 +31,11 @@ you already pay for. No external APIs, no extra keys, no extra credits account.
 \x1b[1mOptions:\x1b[0m
   --runtime <a,b>       Use only these: claude,codex,gemini,qwen,opencode,copilot
   --team <name>         standard | research | bugfix  (default: standard)
-  --concurrent <n>      Max parallel sessions (default 8)
+  --mode <name>         fast | economy  (default: fast)
+                        fast    = all specialists in one full-parallel wave (~N sessions of tokens)
+                        economy = max 3 simultaneous agents, grouped in waves with shared
+                                  context reuse (~3 sessions of tokens, slower but cheaper)
+  --concurrent <n>      Max parallel sessions (default: 8 fast / 3 economy)
   --native              (run only) also print native in-session subagent commands
 
 \x1b[1mHow it works:\x1b[0m

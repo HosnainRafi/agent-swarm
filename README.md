@@ -42,7 +42,21 @@ npx @hosnainrafi/agent-swarm run "build a todo web app with dark mode and local 
 | `agent-swarm detect` | Show which CLI agents are installed on your machine |
 | `agent-swarm teams` | List available team templates |
 
-### Options
+### Modes
+
+agent-swarm ships with two cost modes so you control the token budget:
+
+| Mode | Behavior | Est. token cost |
+|---|---|---|
+| `--mode fast` (default) | All specialists run simultaneously in one wave | ~N sessions (N = team size) |
+| `--mode economy` | Agents grouped in waves of max 3; later waves reuse earlier docs as shared context — nothing re-generated | ~3 sessions always |
+
+```
+npx @hosnainrafi/agent-swarm run "build a todo app" --mode economy
+# → Swarm estimate: 2 waves, ~3 sessions of tokens
+```
+
+## Options
 
 | Flag | Default | Meaning |
 |---|---|---|

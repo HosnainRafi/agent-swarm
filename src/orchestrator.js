@@ -1,27 +1,43 @@
 // orchestrator.js — the swarm conductor.
 //
-// Fan-out model (works for ANY runtime):
-//   1. Detect installed CLI agents (claude, codex, gemini, qwen, opencode, copilot).
-//   2. For each phase, run all specialists SIMULTANEOUSLY — one session per agent,
-//      each reading the shared docs/ folder (that's how they "talk" to each other).
-//   3. Collect outputs, print a status board, move to the next phase.
+// Two modes:
+//   fast    — every specialist runs simultaneously in one full-parallel wave.
+//             Roughly N sessions of tokens (N = team size). Fastest.
+//   economy — specialists are grouped into waves of at most 3 simultaneous
+//             agents; each later wave reuses the docs/ outputs of earlier waves
+//             as shared context, so nothing is re-generated. Roughly 3 sessions
+//             of tokens regardless of team size. Cheapest.
 //
 // Native model (Claude Code / Gemini CLI / Qwen Code interactive sessions):
 //   agent-swarm prints the exact commands to spawn real subagents inside your
-//   interactive session, so you get true in-session subagents (Claude Code's
-//   Agent tool / Gemini's /agent / Qwen's /agent) with zero extra tooling.
+//   interactive session (Claude Code's Agent tool / Gemini's /agent / Qwen's /agent).
 
-import { execSync, spawn } from "node:child_process";
-import { mkdirSync, existsSync, readFileSync, writeFileSync } from "node:fs";
+import { execSync } from "node:child_process";
+import { mkdirSync, existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { detectRuntimes, RUNTIMES } from "./runtimes.js";
+import { detectRuntimes } from "./runtimes.js";
 import { buildPrompts, TEAMS } from "./teams.js";
 
+// Wave plans: how agents group for each mode.
+// fast: one wave with everyone.
+// economy: planner+designer first (they produce the blueprint docs), then
+//          all build/test/review specialists in one wave of <=3 concurrency.
+const WAVE_PLANS = {
+  fast: (agents) => [agents],
+  economy: (agents) => {
+    const lead = agents.filter((a) => a.id === "planner" || a.id === "designer");
+    const rest = agents.filter((a) => !lead.includes(a));
+    const waves = [...(lead.length ? [lead] : []), ...(rest.length ? [rest] : [])];
+    return waves.length ? waves : [agents];
+  },
+};
+
 export class SwarmOrchestrator {
-  constructor({ cwd, runtimeIds, teamId, maxConcurrent }) {
+  constructor({ cwd, runtimeIds, teamId, mode, maxConcurrent }) {
     this.cwd = cwd;
     this.teamId = teamId || "standard";
-    this.maxConcurrent = maxConcurrent || 8;
+    this.mode = mode || "fast";
+    this.maxConcurrent = maxConcurrent || (this.mode === "economy" ? 3 : 8);
     this.runtimes = this.pickRuntimes(runtimeIds);
     this.workDir = join(cwd, ".swarm");
     mkdirSync(this.workDir, { recursive: true });
@@ -66,30 +82,52 @@ export class SwarmOrchestrator {
     return lines.join("\n");
   }
 
-  /** Parallel mode: run a specific set of agents simultaneously. */
-  async runPhaseByAgents(phaseLabel, agents, contextFiles = {}) {
-    const tasks = agents.map((a, i) => {
-      const rt = this.runtimes[i % this.runtimes.length];
-      const context = Object.entries(contextFiles)
-        .map(([f, content]) => `--- ${f} ---\n${content}`)
-        .join("\n\n");
-      return { agent: { ...a, prompt: a.prompt.replace("{goal}", phaseLabel).replace("{context}", context) }, rt };
-    });
-    return this._executeTasks(tasks);
+  /** Print a pre-run estimate so the user knows the token budget before starting. */
+  printEstimate(goal) {
+    const team = TEAMS[this.teamId];
+    const n = team.agents.length;
+    const waves = WAVE_PLANS[this.mode](team.agents);
+    const simSessions = this.mode === "fast" ? n : 3;
+    console.log(`\n\x1b[1m━━━ Swarm estimate ━━━\x1b[0m`);
+    console.log(`  Mode:      ${this.mode} (${waves.length} wave${waves.length > 1 ? "s" : ""}, max ${this.maxConcurrent} concurrent)`);
+    console.log(`  Agents:    ${n} specialist${n > 1 ? "s" : ""} — ${team.agents.map((a) => a.role.split(" —")[0]).join(", ")}`);
+    console.log(`  Est. cost: ~${simSessions} session${simSessions > 1 ? "s" : ""} of tokens (economy reuses earlier docs as shared context)`);
+    console.log(`  Consumed from: your existing ${this.runtimes.map((r) => r.name).join("/")} subscription — no new keys.`);
   }
 
-  /** Parallel mode: run all specialists simultaneously, one session each. */
-  async runPhase(phaseLabel, contextFiles = {}) {
-    const prompts = buildPrompts(this.teamId, phaseLabel, contextFiles);
-    const tasks = [];
+  /** Run all specialists in waves (mode-aware). */
+  async run() {
+    const team = TEAMS[this.teamId];
+    const waves = WAVE_PLANS[this.mode](team.agents);
+    const allResults = [];
 
-    // Round-robin runtimes across agents so work spreads across CLIs.
-    for (let i = 0; i < prompts.length; i++) {
-      const rt = this.runtimes[i % this.runtimes.length];
-      tasks.push({ agent: prompts[i], rt });
+    for (let w = 0; w < waves.length; w++) {
+      const wave = waves[w];
+      console.log(`\n\x1b[1m━━━ Wave ${w + 1}/${waves.length} — ${wave.map((a) => a.role.split(" —")[0]).join(", ")} ━━━\x1b[0m`);
+
+      // Later waves reuse earlier agents' docs as shared context (economy magic).
+      const ctx = {};
+      if (w > 0) {
+        for (const prev of allResults) {
+          if (prev.ok) {
+            const out = join(this.workDir, prev.agent, "out.md");
+            if (existsSync(out)) ctx[`${prev.agent}/out.md`] = readFileSync(out, "utf8").slice(0, 2000);
+          }
+        }
+      }
+
+      const tasks = wave.map((a, i) => {
+        const rt = this.runtimes[i % this.runtimes.length];
+        const context = Object.entries(ctx).map(([f, c]) => `--- previous agent output: ${f} ---\n${c}`).join("\n\n");
+        return { agent: { ...a, prompt: a.prompt.replace("{goal}", goalText()).replace("{context}", context) }, rt };
+      });
+
+      const results = await this._executeTasks(tasks);
+      allResults.push(...results);
     }
 
-    return this._executeTasks(tasks);
+    const fails = allResults.filter((r) => !r.ok);
+    console.log(`\n✔ Swarm complete (${allResults.length - fails.length}/${allResults.length} agents succeeded). Outputs in .swarm/.`);
   }
 
   async _executeTasks(tasks) {
@@ -115,16 +153,12 @@ export class SwarmOrchestrator {
 
     console.log("\n\x1b[1m━━━ Status board ━━━\x1b[0m");
     for (const r of results) console.log(`  ${r.ok ? "\x1b[32m✔\x1b[0m" : "\x1b[31m✖\x1b[0m"} ${r.agent} — ${r.ok ? "done" : "failed"} (${r.secs}s)`);
-
-    // Collect generated docs as shared context for later phases.
-    const collected = {};
-    for (const r of results) {
-      const dir = join(this.workDir, r.agent);
-      for (const f of ["out.md", "out.json"]) {
-        const p = join(dir, f);
-        if (existsSync(p)) collected[`${r.agent}/${f}`] = readFileSync(p, "utf8").slice(0, 3000);
-      }
-    }
     return results;
   }
+}
+
+// Goal text captured from the run command (set by index.js before run()).
+let goalText = () => "";
+export function setGoal(g) {
+  goalText = () => g;
 }
