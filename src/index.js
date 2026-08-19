@@ -59,7 +59,7 @@ export async function run(argv) {
     console.log("\x1b[1mSwarm team — 6 specialists:\x1b[0m");
     for (const a of TEAMS.standard.agents) console.log(`  · ${a.role}`);
     console.log('\nUse: agent-swarm "<goal>"  (or  agent-swarm swarm "<goal>")');
-  } else if (cmd === "swarm") {
+  } else if (cmd === "swarm" || cmd === "run") {
     if (!goal) {
       console.log(HELP);
       throw new Error('Missing goal. Usage: agent-swarm swarm "<goal>"');

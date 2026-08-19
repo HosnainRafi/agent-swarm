@@ -1,6 +1,6 @@
 {
   "name": "@hosnainrafi/agent-swarm",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Universal multi-agent swarm prompt — turns any AI assistant into a team of 6 specialists working in parallel on its own credit. No external CLIs, no API keys.",
   "type": "module",
   "bin": {
