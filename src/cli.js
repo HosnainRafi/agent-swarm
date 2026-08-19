@@ -21,6 +21,8 @@ account. No external processes, no extra keys.
 \x1b[1mUsage:\x1b[0m
   agent-swarm "<goal>"             Print the universal 6-agent swarm prompt
   agent-swarm swarm "<goal>"       Same (explicit form)
+  agent-swarm zcode "<goal>"       Write 6 ZCode subagents to ~/.zcode/agents/
+                                    and print a launch prompt for the ZCode app
   agent-swarm teams                Show the 6 specialist roles
   agent-swarm help                 This help
 

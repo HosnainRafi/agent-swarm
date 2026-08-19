@@ -52,6 +52,7 @@ npx @hosnainrafi/agent-swarm "build a dark-mode todo app"
 ```bash
 agent-swarm "build a dark-mode todo app"     # default — print the swarm prompt
 agent-swarm swarm "build a REST API"         # explicit form
+agent-swarm zcode "build a todo app"         # write 6 ZCode subagents + launch prompt
 agent-swarm teams                            # show the 6 specialist roles
 agent-swarm help                             # help
 ```
@@ -95,6 +96,19 @@ Do all of this now.
 | ⚙️ Backend Dev | Implements the backend / data layer |
 | 🧪 Tester | Test checklist + runs tests |
 | 🔍 Reviewer | Correctness, security, quality (0–10) |
+
+## ZCode (Z.ai / GLM)
+
+ZCode is a **desktop app, not a CLI** — so no Node package can launch it from the command line. What `agent-swarm zcode` does is write the 6 specialist subagents into ZCode's own directory (`~/.zcode/agents/`), then print a one-line launch prompt for you to paste into the ZCode app.
+
+```bash
+agent-swarm zcode "build a dark-mode todo app"
+```
+
+- Writes `planner.md`, `designer.md`, `frontend.md`, `backend.md`, `tester.md`, `reviewer.md` to `~/.zcode/agents/`.
+- Prints a launch prompt → paste it into ZCode, and ZCode runs the 6 subagents on **your GLM credit**.
+
+> Set `ZCODE_AGENTS_DIR` to override where the files are written.
 
 ## FAQ
 

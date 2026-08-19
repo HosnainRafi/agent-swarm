@@ -6,6 +6,7 @@
 
 import { parseArgs, HELP } from "./cli.js";
 import { TEAMS } from "./teams.js";
+import { installZcodeAgents, zcodeLaunchPrompt } from "./zcode.js";
 
 export function swarmPrompt(goal) {
   return `You are about to run a multi-agent swarm using YOUR OWN native subagents
@@ -64,6 +65,16 @@ export async function run(argv) {
       throw new Error('Missing goal. Usage: agent-swarm swarm "<goal>"');
     }
     printSwarm(goal);
+  } else if (cmd === "zcode") {
+    if (!goal) {
+      console.log(HELP);
+      throw new Error('Missing goal. Usage: agent-swarm zcode "<goal>"');
+    }
+    const dir = installZcodeAgents();
+    console.log("\x1b[1mWrote 6 ZCode subagents to " + dir + "\x1b[0m");
+    console.log("Files: planner.md, designer.md, frontend.md, backend.md, tester.md, reviewer.md\n");
+    console.log("\x1b[1mPaste this into the ZCode app:\x1b[0m\n");
+    console.log(zcodeLaunchPrompt(goal));
   } else {
     // Default: treat the whole input as the goal and print the swarm prompt.
     printSwarm(rest.join(" "));
