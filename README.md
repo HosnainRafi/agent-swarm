@@ -35,6 +35,18 @@ flowchart TB
     S --> V["✅ Status board"]
 ```
 
+## 🎯 The "own credit, no CLI" path — `agent-swarm swarm`
+
+If you don't want to install or log into **any** CLI, this is the answer. `swarm` prints a single self-contained prompt that makes **any AI assistant** — ZCode, ChatGPT, Claude Code, Codex, Gemini — spawn its own 6 specialist subagents natively, on **its own account/credit**, with zero external CLI and zero new keys.
+
+```bash
+npx @hosnainrafi/agent-swarm swarm "build a dark-mode todo app"
+```
+
+Copy the printed prompt into the AI. It tells the AI to spawn Planner → Designer → Frontend → Backend → Tester → Reviewer **in parallel**, each using that AI's own native subagent feature, then report a status board.
+
+> 💡 This is the **only** way to truly "use the AI's own credit" — no CLI binary can borrow another app's internal login. `run` fans out across *installed CLI agents*; `swarm` makes *the AI itself* fan out.
+
 ## ✨ Features
 
 - ⚡ **Truly parallel** — all 6 specialists run simultaneously in one wave (no blind waiting).
@@ -147,6 +159,7 @@ npx @hosnainrafi/agent-swarm run "build a todo web app with dark mode and local 
 |---|---|
 | `agent-swarm run "<goal>"` | Fan out specialists in parallel (one CLI session each) |
 | `agent-swarm native "<goal>"` | Print the exact commands to spawn **true in-session subagents** |
+| `agent-swarm swarm "<goal>"` | Print ONE universal prompt — paste into **any** AI to spawn its own 6 subagents on its own credit |
 | `agent-swarm detect` | Show which CLI agents are installed on your machine |
 | `agent-swarm teams` | List available team templates |
 

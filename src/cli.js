@@ -24,6 +24,8 @@ you already pay for. No external APIs, no extra keys, no extra credits account.
   agent-swarm run "<goal>"          Fan out specialists in PARALLEL (one session each)
   agent-swarm native "<goal>"       Print commands to spawn TRUE in-session subagents
                                     (Claude Code agent teams / Gemini / Qwen /agent)
+  agent-swarm swarm "<goal>"        Print ONE universal prompt that makes ANY AI
+                                    spawn its own 6 subagents on ITS OWN credit
   agent-swarm teams                 List available team templates
   agent-swarm detect                Show which CLI agents are installed
   agent-swarm help                  This help
@@ -45,9 +47,15 @@ you already pay for. No external APIs, no extra keys, no extra credits account.
   to any AI API itself. Specialists share context through the docs/ folder and the
   .swarm/ status directory, so they effectively work simultaneously on your project.
 
+\x1b[1mFor "use the AI's own credit" (no CLI, no extra keys):\x1b[0m
+  agent-swarm swarm "<goal>" prints a self-contained prompt. Paste it into ANY
+  assistant (ZCode, ChatGPT, Claude Code, Codex, Gemini…) and it will spawn its
+  own 6 native subagents on its own account — zero external CLI, zero new keys.
+
 \x1b[1mExamples:\x1b[0m
   agent-swarm run "build a todo web app with dark mode and local storage"
   agent-swarm run "research whether WebGPU is ready for production" --team research
   agent-swarm run "app crashes when uploading files >5MB" --team bugfix
   agent-swarm native "build a REST API for inventory management"
+  agent-swarm swarm "build a todo app with dark mode"
 `;

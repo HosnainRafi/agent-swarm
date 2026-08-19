@@ -4,6 +4,31 @@ import { SwarmOrchestrator, setGoal } from "./orchestrator.js";
 import { TEAMS } from "./teams.js";
 import { detectRuntimes } from "./runtimes.js";
 
+export function swarmPrompt(goal) {
+  return `You are about to run a multi-agent swarm using YOUR OWN native subagents
+(your built-in agent / subagent feature). Do NOT call any external API, CLI, or
+third-party tool — every specialist runs inside you, on your own credit/session.
+
+GOAL: ${goal}
+
+Spawn these 6 specialist agents and run them in parallel (simultaneously):
+
+1. Planner   — concise implementation plan (scope, steps, acceptance criteria)
+2. Designer  — design spec (tech stack, file structure, visual direction)
+3. Frontend  — implement the frontend (write working files)
+4. Backend   — implement the backend / data layer (write working files)
+5. Tester    — test checklist, then run tests against the built code
+6. Reviewer  — audit correctness, security, quality; score 0-10
+
+Rules:
+- Each specialist is YOUR OWN subagent on YOUR OWN credit. No external API.
+- Run them concurrently. Each records its start time (HH:MM:SS) as its FIRST line.
+- When all 6 finish, print a status board: agent -> start time -> one-line result.
+- Then assemble and deliver the final result.
+
+Do all of this now.`;
+}
+
 export async function run(argv) {
   const { flags, rest } = parseArgs(argv);
 
@@ -44,6 +69,15 @@ export async function run(argv) {
     const orch = new SwarmOrchestrator({ cwd: process.cwd(), runtimeIds: flags.runtimes, teamId: flags.team });
     console.log(orch.printNativeCommands(goal));
     console.log("\n" + HELP.split("\n").slice(1, 3).join("\n"));
+  } else if (cmd === "swarm") {
+    if (!goal) {
+      console.log(HELP);
+      throw new Error('Missing goal. Usage: agent-swarm swarm "<goal>"');
+    }
+    console.log("\x1b[1mCopy-paste this into ANY AI assistant (ZCode, ChatGPT, Claude Code, Codex, Gemini…) to run a 6-agent swarm on ITS OWN credit:\x1b[0m\n");
+    console.log("```");
+    console.log(swarmPrompt(goal));
+    console.log("```");
   } else if (cmd === "run") {
     if (!goal) {
       console.log(HELP);
