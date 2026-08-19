@@ -127,7 +127,21 @@ export class SwarmOrchestrator {
     }
 
     const fails = allResults.filter((r) => !r.ok);
-    console.log(`\n✔ Swarm complete (${allResults.length - fails.length}/${allResults.length} agents succeeded). Outputs in .swarm/.`);
+    const okCount = allResults.length - fails.length;
+
+    if (okCount === 0) {
+      const allInstant = allResults.every((r) => r.secs < 6);
+      console.log(`\n\x1b[31m✖ All ${allResults.length} agents failed.${allInstant ? " (instant 0–5s exit — usually an auth or missing-binary problem)" : ""}\x1b[0m`);
+      console.log(`  Detected runtimes: ${this.runtimes.map((r) => r.name).join(", ")}`);
+      console.log(`  Fix by authenticating at least one CLI, e.g.:`);
+      console.log(`    claude login   /   codex auth   /   gemini auth   /   qwen auth`);
+      console.log(`  Or restrict to a working runtime:  --runtime claude,codex,gemini,qwen,zcode`);
+      console.log(`  Verify detection with:  agent-swarm detect`);
+      const firstErr = allResults.find((r) => r.err);
+      if (firstErr) console.log(`\n  First error seen:\n${indent(firstErr.err)}`);
+    }
+
+    console.log(`\n✔ Swarm complete (${okCount}/${allResults.length} agents succeeded). Outputs in .swarm/.`);
   }
 
   async _executeTasks(tasks) {
@@ -145,7 +159,8 @@ export class SwarmOrchestrator {
           execSync(cmd, { cwd: this.cwd, stdio: "ignore", timeout: 20 * 60_000 });
           results.push({ agent: t.agent.id, ok: true, secs: Math.round((Date.now() - start) / 1000) });
         } catch {
-          results.push({ agent: t.agent.id, ok: false, secs: Math.round((Date.now() - start) / 1000) });
+          const secs = Math.round((Date.now() - start) / 1000);
+          results.push({ agent: t.agent.id, ok: false, secs, err: readErrorTail(join(outDir, "out.md")) });
         }
       }
     };
@@ -155,6 +170,21 @@ export class SwarmOrchestrator {
     for (const r of results) console.log(`  ${r.ok ? "\x1b[32m✔\x1b[0m" : "\x1b[31m✖\x1b[0m"} ${r.agent} — ${r.ok ? "done" : "failed"} (${r.secs}s)`);
     return results;
   }
+}
+
+// Read the tail of a failed agent's output so the error is actionable.
+function readErrorTail(file) {
+  try {
+    const txt = readFileSync(file, "utf8").trim();
+    if (!txt) return null;
+    return txt.split("\n").slice(-4).join("\n");
+  } catch {
+    return null;
+  }
+}
+
+function indent(s) {
+  return String(s).split("\n").map((l) => "    " + l).join("\n");
 }
 
 // Goal text captured from the run command (set by index.js before run()).

@@ -28,6 +28,7 @@ export async function run(argv) {
     } else {
       console.log("\x1b[1mInstalled CLI agents:\x1b[0m");
       for (const r of found) console.log(`  ✔ ${r.name}  (${r.cmd})`);
+      console.log("\n\x1b[90mNote: detection checks that the binary exists, not that it's logged in.\nIf a run fails instantly, authenticate first (claude login / codex auth / gemini auth / qwen auth).\x1b[0m");
     }
   } else if (cmd === "teams") {
     console.log("\x1b[1mAvailable teams:\x1b[0m");
