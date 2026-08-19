@@ -1,0 +1,17 @@
+{
+  "name": "agent-swarm",
+  "version": "1.0.0",
+  "description": "Universal multi-agent swarm orchestrator for CLI coding assistants — spawn a team of AI subagents (planner, designer, developer, tester, reviewer) inside Claude Code, Codex, Gemini CLI, Qwen Code, or any other CLI agent you already pay for. No external APIs, no extra keys.",
+  "type": "module",
+  "bin": {
+    "agent-swarm": "bin/agent-swarm.js"
+  },
+  "main": "src/index.js",
+  "files": ["bin", "src", "templates"],
+  "scripts": {
+    "lint": "node --check bin/agent-swarm.js"
+  },
+  "keywords": ["claude-code", "codex", "gemini-cli", "qwen-code", "subagents", "multi-agent", "swarm", "orchestration", "ai-coding"],
+  "license": "MIT",
+  "engines": { "node": ">=18" }
+}
