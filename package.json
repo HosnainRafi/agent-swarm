@@ -1,6 +1,6 @@
 {
   "name": "@hosnainrafi/agent-swarm",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Universal multi-agent swarm orchestrator for CLI coding assistants — spawn a team of AI subagents (planner, designer, developer, tester, reviewer) inside Claude Code, Codex, Gemini CLI, Qwen Code, or any other CLI agent you already pay for. No external APIs, no extra keys.",
   "type": "module",
   "bin": {
@@ -20,6 +20,9 @@
     "codex",
     "gemini-cli",
     "qwen-code",
+    "zcode",
+    "glm",
+    "windows",
     "subagents",
     "multi-agent",
     "swarm",

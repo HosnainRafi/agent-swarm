@@ -2,7 +2,7 @@
 
 Spawn a team of AI subagents — working simultaneously — inside the CLI coding assistant you already pay for.
 
-Claude Code, Codex, Gemini CLI, Qwen Code, OpenCode, or Copilot CLI. **No external APIs, no extra keys, no extra credits account.** Every specialist runs as its own session of your existing assistant, under your existing subscription. agent-swarm is only the coordinator.
+Claude Code, Codex, Gemini CLI, Qwen Code, **ZCode (Z.ai/GLM)**, OpenCode, or Copilot CLI. **No external APIs, no extra keys, no extra credits account.** Every specialist runs as its own session of your existing assistant, under your existing subscription. agent-swarm is only the coordinator. Every specialist runs as its own session of your existing assistant, under your existing subscription. agent-swarm is only the coordinator.
 
 ## Why this exists
 
@@ -81,6 +81,8 @@ npx @hosnainrafi/agent-swarm run "build a todo app" --mode economy
 | Whose credits are consumed? | **Yours** — the session uses the login/subscription you already have |
 | Does agent-swarm call any AI API? | No. It launches CLI sessions and coordinates them |
 | Do I need a new account or token? | No. If `claude` works today, your swarm works today |
+| What about ChatGPT (web)? | ChatGPT has no CLI, so agent-swarm can't drive it. For OpenAI, use **Codex CLI** — same OpenAI login/credits, no extra key |
+| Does it work on Windows? | Yes — detection uses `where` and spawn output is merged (`2>&1`), so the same commands run under cmd.exe and POSIX shells |
 
 In short: the key is like the water connection to your house. agent-swarm doesn't add a new pipe company — it just adds a smart pump that uses your existing water. Each agent session consumes your normal per-session quota, so one swarm run is roughly N sessions worth (N = team size).
 
