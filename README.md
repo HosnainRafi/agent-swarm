@@ -11,13 +11,13 @@ Claude Code has a great feature: you ask it to spawn subagents (a planner, a des
 ## Install
 
 ```bash
-npm install -g agent-swarm
+npm install -g @hosnainrafi/agent-swarm
 ```
 
 Or run once without installing:
 
 ```bash
-npx agent-swarm run "your goal"
+npx @hosnainrafi/agent-swarm run "your goal"
 ```
 
 ## Quick start
@@ -27,7 +27,7 @@ npx agent-swarm run "your goal"
 claude login        # or: codex auth / gemini auth / qwen auth
 
 # 2. Spawn the team:
-agent-swarm run "build a todo web app with dark mode and local storage"
+npx @hosnainrafi/agent-swarm run "build a todo web app with dark mode and local storage"
 
 # 3. Watch the status board — every specialist works simultaneously:
 #    ✔ planner ✔ designer ✔ frontend ✔ backend ✔ tester ✔ reviewer
