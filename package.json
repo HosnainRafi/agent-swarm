@@ -1,7 +1,7 @@
 {
   "name": "@hosnainrafi/agent-swarm",
-  "version": "1.3.0",
-  "description": "Universal multi-agent swarm orchestrator for CLI coding assistants — spawn a team of AI subagents (planner, designer, developer, tester, reviewer) inside Claude Code, Codex, Gemini CLI, Qwen Code, or any other CLI agent you already pay for. No external APIs, no extra keys.",
+  "version": "2.0.0",
+  "description": "Universal multi-agent swarm prompt — turns any AI assistant into a team of 6 specialists working in parallel on its own credit. No external CLIs, no API keys.",
   "type": "module",
   "bin": {
     "agent-swarm": "bin/agent-swarm.js"
@@ -16,18 +16,17 @@
     "lint": "node --check bin/agent-swarm.js"
   },
   "keywords": [
-    "claude-code",
-    "codex",
-    "gemini-cli",
-    "qwen-code",
-    "zcode",
-    "glm",
-    "windows",
-    "subagents",
     "multi-agent",
     "swarm",
+    "subagents",
     "orchestration",
-    "ai-coding"
+    "ai-agents",
+    "parallel-agents",
+    "ai-coding",
+    "agent-swarm",
+    "prompt",
+    "no-api-key",
+    "autonomous-agents"
   ],
   "license": "MIT",
   "author": "Hosnain Rafi <rhosnain@gmail.com>",

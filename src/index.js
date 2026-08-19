@@ -1,8 +1,11 @@
 // index.js — main entry for agent-swarm
+//
+// agent-swarm NEVER spawns an external CLI and NEVER calls any AI API. It prints
+// one universal prompt that makes ANY AI assistant spawn its own 6 specialist
+// subagents natively — on its own account/credit, zero extra keys.
+
 import { parseArgs, HELP } from "./cli.js";
-import { SwarmOrchestrator, setGoal } from "./orchestrator.js";
 import { TEAMS } from "./teams.js";
-import { detectRuntimes } from "./runtimes.js";
 
 export function swarmPrompt(goal) {
   return `You are about to run a multi-agent swarm using YOUR OWN native subagents
@@ -29,6 +32,15 @@ Rules:
 Do all of this now.`;
 }
 
+function printSwarm(goal) {
+  console.log(
+    "\x1b[1mCopy-paste this into ANY AI assistant (ZCode, ChatGPT, Claude Code, Codex, Gemini…) to run a 6-agent swarm on ITS OWN credit:\x1b[0m\n"
+  );
+  console.log("```");
+  console.log(swarmPrompt(goal));
+  console.log("```");
+}
+
 export async function run(argv) {
   const { flags, rest } = parseArgs(argv);
 
@@ -42,66 +54,18 @@ export async function run(argv) {
 
   if (cmd === "help") {
     console.log(HELP);
-  } else if (cmd === "detect") {
-    const found = detectRuntimes();
-    if (!found.length) {
-      console.log("\x1b[33mNo CLI coding assistants found on this machine.\x1b[0m\nInstall one of:\n" +
-        "  npm i -g @anthropic-ai/claude-code   (then: claude login)\n" +
-        "  npm i -g @openai/codex               (then: codex auth)\n" +
-        "  npm i -g @anthropic-ai/gemini-cli    (then: gemini auth)\n" +
-        "  npm i -g @anthropic-ai/qwen-code");
-    } else {
-      console.log("\x1b[1mInstalled CLI agents:\x1b[0m");
-      for (const r of found) console.log(`  ✔ ${r.name}  (${r.cmd})`);
-      console.log("\n\x1b[90mNote: detection checks that the binary exists, not that it's logged in.\nIf a run fails instantly, authenticate first (claude login / codex auth / gemini auth / qwen auth).\x1b[0m");
-    }
   } else if (cmd === "teams") {
-    console.log("\x1b[1mAvailable teams:\x1b[0m");
-    for (const [id, t] of Object.entries(TEAMS)) {
-      console.log(`\n  \x1b[1m${id}\x1b[0m — ${t.label}`);
-      for (const a of t.agents) console.log(`     · ${a.role}`);
-    }
-  } else if (cmd === "native") {
-    if (!goal) {
-      console.log(HELP);
-      throw new Error("Missing goal. Usage: agent-swarm native \"<goal>\"");
-    }
-    const orch = new SwarmOrchestrator({ cwd: process.cwd(), runtimeIds: flags.runtimes, teamId: flags.team });
-    console.log(orch.printNativeCommands(goal));
-    console.log("\n" + HELP.split("\n").slice(1, 3).join("\n"));
+    console.log("\x1b[1mSwarm team — 6 specialists:\x1b[0m");
+    for (const a of TEAMS.standard.agents) console.log(`  · ${a.role}`);
+    console.log('\nUse: agent-swarm "<goal>"  (or  agent-swarm swarm "<goal>")');
   } else if (cmd === "swarm") {
     if (!goal) {
       console.log(HELP);
       throw new Error('Missing goal. Usage: agent-swarm swarm "<goal>"');
     }
-    console.log("\x1b[1mCopy-paste this into ANY AI assistant (ZCode, ChatGPT, Claude Code, Codex, Gemini…) to run a 6-agent swarm on ITS OWN credit:\x1b[0m\n");
-    console.log("```");
-    console.log(swarmPrompt(goal));
-    console.log("```");
-  } else if (cmd === "run") {
-    if (!goal) {
-      console.log(HELP);
-      throw new Error("Missing goal. Usage: agent-swarm run \"<goal>\"");
-    }
-    setGoal(goal);
-    const orch = new SwarmOrchestrator({
-      cwd: process.cwd(),
-      runtimeIds: flags.runtimes,
-      teamId: flags.team,
-      mode: flags.mode,
-      maxConcurrent: flags.maxConcurrent,
-    });
-    console.log(`\x1b[1magent-swarm\x1b[0m — team "${orch.teamId}" | goal: "${goal}"\n` +
-      `Runtimes: ${orch.runtimes.map((r) => r.name).join(", ")}`);
-
-    if (flags.native) {
-      console.log("\n" + orch.printNativeCommands(goal) + "\n");
-    }
-
-    orch.printEstimate(goal);
-    await orch.run();
+    printSwarm(goal);
   } else {
-    console.log(HELP);
-    throw new Error(`Unknown command: ${cmd}`);
+    // Default: treat the whole input as the goal and print the swarm prompt.
+    printSwarm(rest.join(" "));
   }
 }
